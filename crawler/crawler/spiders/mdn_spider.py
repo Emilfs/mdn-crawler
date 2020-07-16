@@ -1,4 +1,5 @@
 import scrapy
+import os
 
 
 class MdnSpider(scrapy.Spider):
@@ -12,7 +13,8 @@ class MdnSpider(scrapy.Spider):
 
     def parse(self, response):
         title = response.css('div.titlebar::text').get()
-        filename = '%s.html' % title
+        filename = 'htmls/%s.html' % title
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
 
         if title not in self.done:
             url = response.url
