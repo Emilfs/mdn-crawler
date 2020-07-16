@@ -8,13 +8,20 @@ class MdnSpider(scrapy.Spider):
         'https://developer.mozilla.org/en-US/docs/Tools',
         'https://wiki.developer.mozilla.org/en-US/docs/tag/mozilla?page=1',
     ]
+    done = {}
 
     def parse(self, response):
         title = response.css('div.titlebar::text').get()
         filename = '%s.html' % title
-        with open(filename, 'wb') as f:
-            f.write(response.body)
-        self.log('Saved file %s' % filename)
+
+        if title not in self.done:
+            url = response.url
+            self.done[title] = url
+
+            with open(filename, 'wb') as f:
+                f.write(response.body)
+            self.log('Saved file %s' % filename)
+
 
         next_page = response.css('li.next a::attr(href)').get()
         if next_page is not None:
