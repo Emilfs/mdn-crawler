@@ -11,12 +11,29 @@ class MdnSpider(scrapy.Spider):
     ]
     done = {}
 
+    def is_mdn(self, response):
+        titlebar = response.css('div.titlebar-container')
+        if titlebar:
+            return True
+
+        # from scrapy.selector import Selector
+        # input_tag = Selector(text=html_content).xpath("//input[contains(concat(' ', @class, ' '), ' nextbutton ')]")
+        # if input_tag:
+        #     print "Yes, I found a 'next' button on the page."
+
+    def save_to_html(self):
+        pass
+
+    def next_page(self):
+        pass
+
+
     def parse(self, response):
-        title = response.css('div.titlebar::text').get()
+        title = response.css('div.titlebar h1.title::text').get()
         filename = 'htmls/%s.html' % title
         os.makedirs(os.path.dirname(filename), exist_ok=True)
 
-        if title not in self.done:
+        if self.is_mdn(response) and title not in self.done:
             url = response.url
             self.done[title] = url
 
