@@ -14,7 +14,6 @@ class MdnSpider(CrawlSpider):
         # 'https://wiki.developer.mozilla.org/en-US/docs/tag/mozilla?page=1',
     ]
     rules = (
-        # Rule(LinkExtractor()),
         Rule(LinkExtractor(allow=(r'/en-US', r'/en', '\.html',), deny=('.{1,}\$.{1,}', '.{1,}\?.{1,}')), callback='parse_item', follow=True),
     )
 
@@ -23,21 +22,9 @@ class MdnSpider(CrawlSpider):
         if titlebar:
             return True
 
-        # from scrapy.selector import Selector
-        # input_tag = Selector(text=html_content).xpath("//input[contains(concat(' ', @class, ' '), ' nextbutton ')]")
-        # if input_tag:
-        #     print "Yes, I found a 'next' button on the page."
-
     def save_to_html(self, response, filename):
         with open(filename, 'wb') as f:
             f.write(response.body)
-
-    def next_page(self, response):
-        pass
-        # next_page = response.css('li.next a::attr(href)').get()
-        # if next_page is not None:
-        #     next_page = response.urljoin(next_page)
-        #     yield scrapy.Request(next_page, callback=self.parse)
 
 
     def parse_item(self, response):
@@ -50,7 +37,6 @@ class MdnSpider(CrawlSpider):
             self.save_to_html(response, filename)
             logger.info('Saved file %s' % response.url)
 
-        # self.next_page(response)
 
 
 
