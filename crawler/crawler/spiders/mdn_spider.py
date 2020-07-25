@@ -15,9 +15,8 @@ class MdnSpider(CrawlSpider):
     ]
     rules = (
         # Rule(LinkExtractor()),
-        Rule(LinkExtractor(), callback='parse_item', follow=True),
+        Rule(LinkExtractor(allow=(r'/en-US', r'/en', '\.html',), deny=('.{1,}\$.{1,}', '.{1,}\?.{1,}')), callback='parse_item', follow=True),
     )
-    done = {}
 
     def is_mdn(self, response):
         titlebar = response.css('div.titlebar-container')
@@ -42,16 +41,14 @@ class MdnSpider(CrawlSpider):
 
 
     def parse_item(self, response):
-        title = response.css('div.titlebar h1.title::text').get()
-        filename = 'htmls/%s.html' % title
+        # title = response.css('div.titlebar h1.title::text').get()
+        title = response.xpath('//title/text()').extract_first()
+        filename = 'htmls/%s.html' % title #response.url.rsplit('/', 1)[-1]
         os.makedirs("htmls/", exist_ok=True)
 
-        if self.is_mdn(response) and title not in self.done:
+        if self.is_mdn(response):
             self.save_to_html(response, filename)
-            logger.info('Saved file %s' % filename)
-
-            url = response.url
-            self.done[title] = url
+            logger.info('Saved file %s' % response.url)
 
         # self.next_page(response)
 
