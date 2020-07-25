@@ -34,8 +34,11 @@ class MdnSpider(CrawlSpider):
         clean_resp = w3lib.html.remove_tags_with_content(response.text, which_ones=('script', 'head', 'header', 'footer', 'span', 'section', 'button', 'div',))
         rst_out = pypandoc.convert_text(clean_resp, 'rst', format='html')
 
+        # with open(filename, 'w') as f:
+        #     f.write(rst_out)
+        data = rst_out.splitlines(True)
         with open(filename, 'w') as f:
-            f.write(rst_out)
+            f.writelines(data[4:])
 
 
     def parse_item(self, response):
