@@ -3,6 +3,10 @@ import logging
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 
+import w3lib.html
+
+import pypandoc
+
 logger = logging.getLogger()
 
 class MdnSpider(CrawlSpider):
@@ -26,16 +30,24 @@ class MdnSpider(CrawlSpider):
         with open(filename, 'wb') as f:
             f.write(response.body)
 
+    def convert_to_rst(self, response, filename):
+        clean_resp = w3lib.html.remove_tags_with_content(response.text, which_ones=('script', 'head', 'header', 'footer', 'span', 'section', 'button', 'div',))
+        rst_out = pypandoc.convert_text(clean_resp, 'rst', format='html')
+
+        with open(filename, 'w') as f:
+            f.write(rst_out)
+
 
     def parse_item(self, response):
         # title = response.css('div.titlebar h1.title::text').get()
         title = response.xpath('//title/text()').extract_first()
-        filename = 'htmls/%s.html' % title #response.url.rsplit('/', 1)[-1]
+        filename = 'htmls/%s.rst' % title #response.url.rsplit('/', 1)[-1]
         os.makedirs("htmls/", exist_ok=True)
 
         if self.is_mdn(response):
-            self.save_to_html(response, filename)
-            logger.info('Saved file %s' % response.url)
+            # self.save_to_html(response, filename)
+            self.convert_to_rst(response, filename)
+            logger.info('Link saved to file %s' % response.url)
 
 
 
