@@ -1,5 +1,6 @@
 __pycache__
 crawler/htmls/
+crawler/rst/
 .DS_Store
 crawler/.DS_Store
 crawler/crawler/.DS_Store
