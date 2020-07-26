@@ -1,2 +1,5 @@
 __pycache__
 crawler/htmls/
+.DS_Store
+crawler/.DS_Store
+crawler/crawler/.DS_Store
