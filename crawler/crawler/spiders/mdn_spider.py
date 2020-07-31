@@ -4,6 +4,7 @@ import w3lib.html
 import pypandoc
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
+from bs4 import BeautifulSoup
 
 
 
@@ -34,23 +35,17 @@ class MdnSpider(CrawlSpider):
         """
         edit the which_ones to know which is going to be deleted
 
-        To test:
-        - put div on the 3rd position
-        - determine what to use from the combination of span, section, button (the lesser the better)
+        To do:
+        - we should make an argument for the crawler so that it could take webpage link as args so that it can scrape individually
+        - the argument can also target a csv file and scrape the links in the csv
         """
-        clean_resp = w3lib.html.remove_tags_with_content(response.text, which_ones=('script', 'head', 'header', 'footer', 'span', 'section', 'button', 'div',))
-        rst_out = pypandoc.convert_text(clean_resp, 'rst', format='html')
+        soup = BeautifulSoup(response.text, 'html5lib')
+        clean_resp = soup.find("article", id="wikiArticle")
+        if clean_resp:
+            rst_out = pypandoc.convert_text(clean_resp, 'rst', format='html')
 
-        # with open(filename, 'w') as f:
-        #     f.write(rst_out)
-        """
-        delete the comment above and use it instead of the bottom one
-        pros = the first 3 line is gone
-        cons = need more resource, could cause unwanted side effects since we are using writelines instead of write
-        """
-        data = rst_out.splitlines(True)
         with open(filename, 'w') as f:
-            f.writelines(data[4:])
+            f.write(rst_out)
 
 
     def parse_item(self, response):

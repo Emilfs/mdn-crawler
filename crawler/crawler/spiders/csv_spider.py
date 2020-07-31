@@ -1,8 +1,8 @@
 import os
 import logging
-import w3lib.html
 import pypandoc
 import scrapy
+from bs4 import BeautifulSoup
 
 logger = logging.getLogger()
 
@@ -20,12 +20,13 @@ class CsvSpider(scrapy.Spider):
             f.write(response.body)
 
     def convert_to_rst(self, response, filename):
-        clean_resp = w3lib.html.remove_tags_with_content(response.text, which_ones=('script', 'head', 'header', 'footer', 'span', 'section', 'button', 'div',))
-        rst_out = pypandoc.convert_text(clean_resp, 'rst', format='html')
+        soup = BeautifulSoup(response.text, 'html5lib')
+        clean_resp = soup.find("article", id="wikiArticle")
+        if clean_resp:
+            rst_out = pypandoc.convert_text(clean_resp, 'rst', format='html')
 
-        data = rst_out.splitlines(True)
         with open(filename, 'w') as f:
-            f.writelines(data[4:])
+            f.write(rst_out)
 
     def parse(self, response):
         title = response.xpath('//title/text()').extract_first()
